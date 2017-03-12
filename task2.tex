@@ -1,0 +1,52 @@
+\documentclass[a4paper,12pt,twoside]{article}
+\pagestyle{headings}
+\usepackage{a4wide}
+\usepackage{mathtools}
+\usepackage[colorlinks,hyperfigures,backref,bookmarks,draft=false]{hyperref}
+
+\title{stance detection\\ Web Science }
+\author{*}
+
+\begin{document}
+\section{Introduction}
+Stance detection means to determine the viewpoint on a certain topic, person, organisation or similar. Most often a distinction in an approving, a disapproving or a neutral stance is made.\\ 
+To create such a stance detector a system needs to be trained with the help of a training set containing already predeterminded stances and the corresponding. 
+
+In contrast to sentiment analysis the stance towards a topic is exermined even when the target does not explicitely occur in the test medium. 
+
+
+\section{Methodology}
+use of training set
+- tokenisation
+- feature: stopwordremoval
+- bigramm analysis
+- vocabulary extraction
+- vector creation
+
+
+\section{About the Implementation}
+- tokenisation with nltk tweet tokenizer
+
+Features:
+- stopword removal with nltk stopword list
+- words of length 1 deleted
+
+creation of vector
+
+classifier
+
+\section{Findings}
+
+\section{Discussion}
+
+"In fact, one can argue that stance detection can often bring complementary information to sentiment analysis, because we often care about the author’s evaluative outlook towards specific targets and propositions rather than simply about whether the speaker was angry or happy."
+
+ 
+
+\section{Conclusion}
+
+
+
+\bibliographystyle{alpha}
+\bibliography{task2.bib} 
+\end{document}
