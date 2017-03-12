@@ -1,8 +1,9 @@
 from nltk.tokenize import TweetTokenizer
 import pandas
 import codecs
-import nltk
 from nltk.corpus import stopwords
+import numpy as np
+#from sklearn.neighbors.nearest_centroid import NearestCentroid
 
 
 
@@ -18,26 +19,45 @@ def main():
     df = pandas.read_csv(doc, sep='\t')
 
     #tokenize
-    tokenized = []
-    tupleVocabulary = set()
+    tweetsTokenList = []
+    tupleVocabularySet = set()
     tknzr = TweetTokenizer()
     for index, row in df.iterrows():
-        wordList = tknzr.tokenize(row['Tweet'])
+        tweetTokens = tknzr.tokenize(row['Tweet'])
 
-        stop = set(stopwords.words('english'))
-        wordList =  [i.lower() for i in wordList if i not in stop and len(i) > 1]
-        tokenized.append(wordList)
+        stopwordList = set(stopwords.words('english'))
+        tweetTokens =  [i.lower() for i in tweetTokens if i not in stopwordList and len(i) > 1]
+        tweetsTokenList.append(tweetTokens)
 
         # build tupleVocabulary
-        for word1, word2 in zip(wordList[:-1], wordList[1:]):
-            tupleVocabulary.add((word1, word2))
+        for word1, word2 in zip(tweetTokens[:-1], tweetTokens[1:]):
+            tupleVocabularySet.add((word1, word2))
 
 
+    #create vectorMatrix with bigram count
+    tweetCount = len(df.index)
+    bigramCount = len(tupleVocabularySet)
+    tupleVocabularyList = list(tupleVocabularySet)
+
+    bigramMatrix = np.zeros(shape=(bigramCount, tweetCount))
+
+    rowIndex = 0
+
+    for tweetTokens in tweetsTokenList:
+
+        for word1, word2 in zip(tweetTokens[:-1], tweetTokens[1:]):
+            position = tupleVocabularyList.index((word1, word2))
+            bigramMatrix[position][index] += 1
+        rowIndex += 1
+
+    print bigramMatrix
 
 
-    print tupleVocabulary.__sizeof__()
+    #train classifier
 
-
+    #actualStances = np.array(df["Stance"])
+    #clf = NearestCentroid()
+    #clf.fit(bigrammMatrix, actualStances)
 
 
 
