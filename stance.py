@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 
 
-topic = "Atheism"
+topic = "Climate Change is a Real Concern"
 pathTrainingSet = "train.txt"
 pathTestSet = "test.txt"
 stopwordList = set(stopwords.words('english'))
@@ -15,11 +15,9 @@ tknzr = TweetTokenizer()
 classifier = None
 
 def main():
-
-
     classifier = initClassifier()
-
-    #calculateStance()
+    matrix = calculateTestMatrix()
+    print classifier.predict(matrix)
 
 
 def initClassifier():
@@ -55,7 +53,7 @@ def initClassifier():
 
         for word1, word2 in zip(tweetTokens[:-1], tweetTokens[1:]):
             position = vocabularyTupleList.index((word1, word2))
-            bigramMatrix[index][position] += 1
+            bigramMatrix[rowIndex][position] += 1
         rowIndex += 1
 
     #train classifier
@@ -64,7 +62,7 @@ def initClassifier():
     clf.fit(bigramMatrix, actualStances)
     return clf
 
-def calculateStance():
+def calculateTestMatrix():
     # read File
     doc = codecs.open(pathTrainingSet, 'r', 'UTF-8')
     df = pandas.read_csv(doc, sep='\t')
@@ -84,7 +82,7 @@ def calculateStance():
     bigramCount = len(vocabularyTupleSet)
     tupleVocabularyList = list(vocabularyTupleSet)
 
-    bigramMatrix = np.zeros(shape=(bigramCount, tweetCount))
+    bigramMatrix = np.zeros(shape=(tweetCount, bigramCount))
 
     rowIndex = 0
 
@@ -92,10 +90,10 @@ def calculateStance():
 
         for word1, word2 in zip(tweetTokens[:-1], tweetTokens[1:]):
             position = tupleVocabularyList.index((word1, word2))
-            bigramMatrix[position][index] += 1
+            bigramMatrix[rowIndex][position] += 1
         rowIndex += 1
 
-    print bigramMatrix
+    return bigramMatrix
 
 
 def tokenize(tweet):
