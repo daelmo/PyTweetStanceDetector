@@ -3,41 +3,86 @@ import pandas
 import codecs
 from nltk.corpus import stopwords
 import numpy as np
-#from sklearn.neighbors.nearest_centroid import NearestCentroid
-
-
-
+from sklearn.neighbors.nearest_centroid import NearestCentroid
 
 
 topic = "Atheism"
-filePath = "train.txt"
-
+pathTrainingSet = "train.txt"
+pathTestSet = "test.txt"
+stopwordList = set(stopwords.words('english'))
+vocabularyTupleSet = set()
+tknzr = TweetTokenizer()
+classifier = None
 
 def main():
+
+
+    classifier = initClassifier()
+
+    #calculateStance()
+
+
+def initClassifier():
     # read File
-    doc = codecs.open(filePath, 'r', 'UTF-8')
+    doc = codecs.open(pathTrainingSet, 'r', 'UTF-8')
     df = pandas.read_csv(doc, sep='\t')
+
+    # cut to topic
+    df = df[df.Target == topic]
 
     #tokenize
     tweetsTokenList = []
-    tupleVocabularySet = set()
-    tknzr = TweetTokenizer()
-    for index, row in df.iterrows():
-        tweetTokens = tknzr.tokenize(row['Tweet'])
 
-        stopwordList = set(stopwords.words('english'))
-        tweetTokens =  [i.lower() for i in tweetTokens if i not in stopwordList and len(i) > 1]
+    for index, row in df.iterrows():
+        tweetTokens = tokenize(row["Tweet"])
         tweetsTokenList.append(tweetTokens)
 
         # build tupleVocabulary
         for word1, word2 in zip(tweetTokens[:-1], tweetTokens[1:]):
-            tupleVocabularySet.add((word1, word2))
+            vocabularyTupleSet.add((word1, word2))
 
 
     #create vectorMatrix with bigram count
     tweetCount = len(df.index)
-    bigramCount = len(tupleVocabularySet)
-    tupleVocabularyList = list(tupleVocabularySet)
+    bigramCount = len(vocabularyTupleSet)
+    vocabularyTupleList = list(vocabularyTupleSet)
+
+    bigramMatrix = np.zeros(shape=(tweetCount, bigramCount))
+
+    rowIndex = 0
+
+    for tweetTokens in tweetsTokenList:
+
+        for word1, word2 in zip(tweetTokens[:-1], tweetTokens[1:]):
+            position = vocabularyTupleList.index((word1, word2))
+            bigramMatrix[index][position] += 1
+        rowIndex += 1
+
+    #train classifier
+    actualStances = np.array(df["Stance"])
+    clf = NearestCentroid()
+    clf.fit(bigramMatrix, actualStances)
+    return clf
+
+def calculateStance():
+    # read File
+    doc = codecs.open(pathTrainingSet, 'r', 'UTF-8')
+    df = pandas.read_csv(doc, sep='\t')
+
+    # cut to topic
+    df = df[df.Target == topic]
+
+    # tokenisation of target tweets
+    tweetsTokenList = []
+
+    for index, row in df.iterrows():
+        tweetTokens = tokenize(row["Tweet"])
+        tweetsTokenList.append(tweetTokens)
+
+     # create vectorMatrix with bigram count
+    tweetCount = len(df.index)
+    bigramCount = len(vocabularyTupleSet)
+    tupleVocabularyList = list(vocabularyTupleSet)
 
     bigramMatrix = np.zeros(shape=(bigramCount, tweetCount))
 
@@ -53,11 +98,10 @@ def main():
     print bigramMatrix
 
 
-    #train classifier
-
-    #actualStances = np.array(df["Stance"])
-    #clf = NearestCentroid()
-    #clf.fit(bigrammMatrix, actualStances)
+def tokenize(tweet):
+    tweetTokens = tknzr.tokenize(tweet)
+    tweetTokens = [i.lower() for i in tweetTokens if i not in stopwordList and len(i) > 1]
+    return tweetTokens
 
 
 
