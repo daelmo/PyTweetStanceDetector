@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 
 
-topic = "Climate Change is a Real Concern"
+topic = "Atheism"
 pathTrainingSet = "train.txt"
 pathTestSet = "test.txt"
 stopwordList = set(stopwords.words('english'))
@@ -16,8 +16,10 @@ classifier = None
 
 def main():
     classifier = initClassifier()
-    matrix = calculateTestMatrix()
-    print classifier.predict(matrix)
+    (matrix, actualStance ) = calculateTestMatrix()
+    calculatedStance = classifier.predict(matrix)
+
+    calculateF1(calculatedStance, actualStance)
 
 
 def initClassifier():
@@ -93,7 +95,7 @@ def calculateTestMatrix():
             bigramMatrix[rowIndex][position] += 1
         rowIndex += 1
 
-    return bigramMatrix
+    return (bigramMatrix, df["Stance"])
 
 
 def tokenize(tweet):
@@ -101,6 +103,21 @@ def tokenize(tweet):
     tweetTokens = [i.lower() for i in tweetTokens if i not in stopwordList and len(i) > 1]
     return tweetTokens
 
+def calculateF1(calculatedStances, actualStances):
+    calculatedStances = list(calculatedStances)
+    actualStances = list(actualStances)
+
+    stances = set(calculatedStances + actualStances)
+
+    for possibleStance in stances:
+        (tp, fn, fp) = (0.,0.,0.)
+        for actualStance, calculatedStance in zip(actualStances, calculatedStances):
+            if(actualStance == possibleStance or actualStance == possibleStance):
+                if(actualStance == calculatedStance): tp += 1
+                else:
+                    if (actualStance == possibleStance): fn += 1
+                    if (calculatedStance == possibleStance): fp += 1
+        print (possibleStance, tp, fp, fn, 2*tp/(2*tp + fn +fp))
 
 
 main()
