@@ -9,10 +9,14 @@
 
 \begin{document}
 \section{Introduction}
-Stance detection means to determine the viewpoint on a certain topic, person, organisation or similar. Most often a distinction in an approving, a disapproving or a neutral stance is made.\\ 
-To create such a stance detector a system needs to be trained with the help of a training set containing already predeterminded stances and the corresponding. 
+Stance detection means to determine the viewpoint on a certain topic, person, organisation or similar based on a natural-language based medium like text.\\ 
+To create such a stance detector a system needs to be trained with the help of a training set containing already predeterminded stances and the corresponding weighting. While considering the probability of word combinations in the training set predictions for the test set can be made.\\
+In contrast to sentiment analysis the stance towards a topic is exermined even when the target does not explicitely occur in the test medium. \\
+Stance detectors find for example use in the area of web data analysis to detect the stances of users to obtain an overview of the trends in the word wide web. \\
+The here implemented stance detector is working with tweets for the topics : Atheism, Legalization of Abortion, Climate Change is a real Concern, Feminist Movement, Hillary Clinton. Therefore the stances favor, against and neutral were applied.\\
+The used data set originates to the SemEval-2016 Shared Task on Stance Detection in Tweets
+(Mohammad et al. 2016) \url{http://alt.qcri.org/semeval2016/task6/}.
 
-In contrast to sentiment analysis the stance towards a topic is exermined even when the target does not explicitely occur in the test medium. 
 
 
 \section{Methodology}
@@ -23,24 +27,71 @@ use of training set
 - vocabulary extraction
 - vector creation
 
+amount of bigramms
+
+- classifier:
+decide the affiliation of an item in the context of multiple item groups.
+Nearest Centroid Classifier
+
+
+prediction
+
+
+To evaluate the calculated stances the F1 score was used. For that reason the true positives (TP), false positives (FP) and false negatives (FN) were counted.
+\begin{equation}
+F_1 = \frac{2*TP}{ 2*TP + FP + FN}
+\end{equation}
+The F1 score allows an estimation of the precision and recall of the trained classifier. When both are optimal the F1 score approaches 1.
 
 \section{About the Implementation}
-- tokenisation with nltk tweet tokenizer
+The stance detector was implemented in Python. The test and training tweets were tokenized with the use of nltk tweet tokenizer. Furtheron stopwords were removed with the help of the nltk stopword list.
+Tokens of the length of 1 have been deleted due to resulting improvements of the F1 Score. \\
+The Nearest Centroid Classifier  of the sklearn package was chosen to classify the test and training vectors.
+for each class calculation of centroid by considering vector positions of all members.
+New vector is classified to the nearest centroid. Prediction possible
 
-Features:
-- stopword removal with nltk stopword list
-- words of length 1 deleted
 
-creation of vector
-
-classifier
 
 \section{Findings}
 
+F1 results
+- for Atheism
+
+\begin{tabular}{c|ccc|c}
+stance & TP & FP & FN & F1\\ \hline
+Favor & 91 & 0 & 1 & 0.994535\\
+Against & 117 & 0 & 0 & 1.0\\
+Neutral &  303 & 0 & 1 & 0.998353\\
+\end{tabular}
+
+
+
+- for Climate Change is a real concern \\
+\begin{tabular}{c|ccc|c}
+stance & TP & FP & FN & F1\\ \hline
+Favor & 211 & 0 & 1 & 0.997636\\
+Against & 14 & 0 & 1 & 0.965517 \\
+Neutral & 168 & 0 & 0 & 1 \\
+\end{tabular}
+
+
+
 \section{Discussion}
 
-"In fact, one can argue that stance detection can often bring complementary information to sentiment analysis, because we often care about the author’s evaluative outlook towards specific targets and propositions rather than simply about whether the speaker was angry or happy."
+-high prediction rate
+- few outlier
 
+atheism
+FAVOR: god of the gaps is not evidence #next #SemST
+AGAINST: I hope no one is hurt. #WhoIsBurningBlackChurches #EndRacism #LoveWins #SemST
+
+climate change
+169
+47
+
+
+"In fact, one can argue that stance detection can often bring complementary information to sentiment analysis, because we often care about the author’s evaluative outlook towards specific targets and propositions rather than simply about whether the speaker was angry or happy."
+- irony
  
 
 \section{Conclusion}
