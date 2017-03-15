@@ -88,6 +88,11 @@ def calculateTestMatrix():
 
     rowIndex = 0
 
+    print df["Stance"][101]
+    print df["Stance"][421]
+
+
+
     for tweetTokens in tweetsTokenList:
 
         for word1, word2 in zip(tweetTokens[:-1], tweetTokens[1:]):
@@ -109,14 +114,18 @@ def calculateF1(calculatedStances, actualStances):
 
     stances = set(calculatedStances + actualStances)
 
+
     for possibleStance in stances:
         (tp, fn, fp) = (0.,0.,0.)
+        i = 0
         for actualStance, calculatedStance in zip(actualStances, calculatedStances):
             if(actualStance == possibleStance or actualStance == possibleStance):
                 if(actualStance == calculatedStance): tp += 1
                 else:
                     if (actualStance == possibleStance): fn += 1
                     if (calculatedStance == possibleStance): fp += 1
+                    print i
+            i += 1
         print (possibleStance, tp, fp, fn, 2*tp/(2*tp + fn +fp))
 
 
