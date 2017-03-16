@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 
 
-topic = "Atheism"
+topic = "Climate Change is a Real Concern"
 pathTrainingSet = "train.txt"
 pathTestSet = "test.txt"
 stopwordList = set(stopwords.words('english'))
@@ -66,7 +66,7 @@ def initClassifier():
 
 def calculateTestMatrix():
     # read File
-    doc = codecs.open(pathTrainingSet, 'r', 'UTF-8')
+    doc = codecs.open(pathTestSet, 'r', 'UTF-8')
     df = pandas.read_csv(doc, sep='\t')
 
     # cut to topic
@@ -88,14 +88,10 @@ def calculateTestMatrix():
 
     rowIndex = 0
 
-    print df["Stance"][101]
-    print df["Stance"][421]
-
-
-
     for tweetTokens in tweetsTokenList:
 
         for word1, word2 in zip(tweetTokens[:-1], tweetTokens[1:]):
+            if (word1, word2) not in tupleVocabularyList: continue
             position = tupleVocabularyList.index((word1, word2))
             bigramMatrix[rowIndex][position] += 1
         rowIndex += 1
@@ -124,7 +120,7 @@ def calculateF1(calculatedStances, actualStances):
                 else:
                     if (actualStance == possibleStance): fn += 1
                     if (calculatedStance == possibleStance): fp += 1
-                    print i
+                    #print i
             i += 1
         print (possibleStance, tp, fp, fn, 2*tp/(2*tp + fn +fp))
 
