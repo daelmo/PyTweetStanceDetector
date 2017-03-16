@@ -20,31 +20,18 @@ The used data set originates to the SemEval-2016 Shared Task on Stance Detection
 
 
 \section{Methodology}
-use of training set
-- tokenisation
-- feature: stopwordremoval
-- bigramm analysis
-- vocabulary extraction
-- vector creation
-
-amount of bigramms
-
-- classifier:
-decide the affiliation of an item in the context of multiple item groups.
-Nearest Centroid Classifier
-
-
-prediction
-
-
-To evaluate the calculated stances the F1 score was used. For that reason the true positives (TP), false positives (FP) and false negatives (FN) were counted.
+The training set has been tokenized with the tokenisation algorithm than stopwords and tokens of the length of 1 were removed. \\
+The examined features for the classification are bigrams consisting of 2 consecutive tokens. So except for the first and the last token, each token is part of 2 bigrams.\\
+A vocabulary over all occuring tokens were constructed. In the following for each tweet a vector was created containing the amount of the associated bigrams.\\
+The classifier was trained using these vectors and the known stances. Herefore the Nearest Centroid classifier was chosen. It decides the affiliation of a vector in the context of multiple vector groups by creating vector centroids for each stance and classifying a new vector by determining the nearest centroid.\\
+The classified stances can be evaluated by comparing them with the known stances. For this evaluation the F1 score was used. For that reason the true positives (TP), false positives (FP) and false negatives (FN) were counted.
 \begin{equation}
 F_1 = \frac{2*TP}{ 2*TP + FP + FN}
 \end{equation}
 The F1 score allows an estimation of the precision and recall of the trained classifier. When both are optimal the F1 score approaches 1.
 
 \section{About the Implementation}
-The stance detector was implemented in Python. The test and training tweets were tokenized with the use of nltk tweet tokenizer. Furtheron stopwords were removed with the help of the nltk stopword list.
+The stance detector was implemented in Python. The data files were read using pandas. The test and training tweets were tokenized with the use of the library nltk tweet tokenizer. Furtheron stopwords were removed with the help of the nltk stopword list.
 Tokens of the length of 1 have been deleted due to resulting improvements of the F1 Score. \\
 The Nearest Centroid Classifier  of the sklearn package was chosen to classify the test and training vectors.
 for each class calculation of centroid by considering vector positions of all members.
@@ -59,35 +46,46 @@ F1 results
 
 \begin{tabular}{c|ccc|c}
 stance & TP & FP & FN & F1\\ \hline
+Favor & 2 & 0 & 30 & 0.11764705882352941\\
+Against & 154 & 0 & 6 & 0.9808917197452229 \\
+Neutral & 0 & 0 & 28 & 0.0 \\
+\end{tabular}
+
+
+
+- for Climate Change is a real Concern \\
+\begin{tabular}{c|ccc|c}
+stance & TP & FP & FN & F1\\ \hline
+Favor & 42 & 0 & 81 & 0.509090909090909\\
+Against & 0 & 0 & 11 & 0.0\\
+Neutral & 35 & 0 & 0 & 1.0 \\
+\end{tabular}
+
+
+- atheism testset is trainingsset
+- for Atheism
+
+\begin{tabular}{c|ccc|c}
+stance & TP & FP & FN & F1\\ \hline
 Favor & 91 & 0 & 1 & 0.994535\\
 Against & 117 & 0 & 0 & 1.0\\
 Neutral &  303 & 0 & 1 & 0.998353\\
 \end{tabular}
 
 
-
-- for Climate Change is a real concern \\
-\begin{tabular}{c|ccc|c}
-stance & TP & FP & FN & F1\\ \hline
-Favor & 211 & 0 & 1 & 0.997636\\
-Against & 14 & 0 & 1 & 0.965517 \\
-Neutral & 168 & 0 & 0 & 1 \\
-\end{tabular}
-
-
-
 \section{Discussion}
 
 -high prediction rate
-- few outlier
+- few outlier?
+- irony
+- addition of bigrams
+- size of matrix containing so many zeros
 
 atheism
-FAVOR: god of the gaps is not evidence #next #SemST
-AGAINST: I hope no one is hurt. #WhoIsBurningBlackChurches #EndRacism #LoveWins #SemST
+%FAVOR: god of the gaps is not evidence #next #SemST
+%AGAINST: I hope no one is hurt. #WhoIsBurningBlackChurches #EndRacism #LoveWins #SemST
 
-climate change
-169
-47
+
 
 
 "In fact, one can argue that stance detection can often bring complementary information to sentiment analysis, because we often care about the author’s evaluative outlook towards specific targets and propositions rather than simply about whether the speaker was angry or happy."
