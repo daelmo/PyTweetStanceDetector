@@ -72,20 +72,6 @@ def calculateTestMatrix():
     # cut to topic
     df = df[df.Target == topic]
 
-    print df["Tweet"][71]
-    print df["Tweet"][79]
-    print df["Tweet"][83]
-    print df["Tweet"][101]
-    print df["Tweet"][106]
-
-
-    print df["Tweet"][13]
-    print df["Tweet"][14]
-    print df["Tweet"][50]
-    print df["Tweet"][51]
-    print df["Tweet"][52]
-
-
     # tokenisation of target tweets
     tweetsTokenList = []
 
@@ -124,15 +110,6 @@ def calculateF1(calculatedStances, actualStances):
 
     stances = set(calculatedStances + actualStances)
 
-    # count amount of stances
-    (favor, against, neutral) = (0, 0, 0)
-    for stance in actualStances:
-        if(stance == "FAVOR"): favor += 1
-        if(stance == "AGAINST"): against +=1
-        if(stance == "NONE"): neutral += 1
-    print (favor, against, neutral)
-
-
     for possibleStance in stances:
         (tp, fn, fp) = (0.,0.,0.)
         i = 0
@@ -143,7 +120,7 @@ def calculateF1(calculatedStances, actualStances):
                     if (actualStance == possibleStance): fn += 1
                     if (calculatedStance == possibleStance): fp += 1
 
-                    print (actualStance, calculatedStance,i)
+                    #print (actualStance, calculatedStance,i)
             i += 1
         print (possibleStance, tp, fp, fn, 2*tp/(2*tp + fn +fp))
 
