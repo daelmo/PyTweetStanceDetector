@@ -13,16 +13,17 @@
 \section{Introduction}
 Stance detection means to determine the viewpoint on a certain topic, person, organisation or similar based on a natural-language based medium like text.\\ 
 To create such a stance detector a system needs to be trained with the help of a training set containing already predeterminded stances and the corresponding weighting. While considering the probability of word combinations in the training set predictions for the test set can be made.\\
-In contrast to sentiment analysis the stance towards a topic is exermined even when the target does not explicitely occur in the test medium. \\
+In contrast to sentiment analysis the stance towards a topic is examined even when the target does not explicitely occur in the test medium. \\
 Stance detectors find for example use in the area of web data analysis to detect the stances of users to obtain an overview of the trends in the word wide web. \\
 The here implemented stance detector is working with tweets for the topics : Atheism, Legalization of Abortion, Climate Change is a real Concern, Feminist Movement, Hillary Clinton. Therefore the stances favor, against and neutral were applied.\\
 The used data set originates to the SemEval-2016 Shared Task on Stance Detection in Tweets
-(Mohammad et al. 2016) \url{http://alt.qcri.org/semeval2016/task6/}.
+(Mohammad et al. 2016)  found in \url{http://alt.qcri.org/semeval2016/task6/}.
 
 
 
 \section{Methodology}
-The training set has been tokenized with the tokenisation algorithm than stopwords and tokens of the length of 1 were removed. \\
+The training set has been tokenized with the tokenisation algorithm than stopwords were removed. \\
+This removal should delete tokens with low significance which occur often in sentence structures and do not carry any importance for the stance itself. It is a common procedure for stance detection.\\
 The examined features for the classification are bigrams consisting of 2 consecutive tokens. So except for the first and the last token, each token is part of 2 bigrams.\\
 A vocabulary over all occuring tokens were constructed. In the following for each tweet a vector was created containing the amount of the associated bigrams.\\
 The classifier was trained using these vectors and the known stances. Herefore the Nearest Centroid classifier was chosen. It decides the affiliation of a vector in the context of multiple vector groups by creating vector centroids for each stance and classifying a new vector by determining the nearest centroid.\\
@@ -34,44 +35,63 @@ F_1 = \frac{2*TP}{ 2*TP + FP + FN}
 The F1 score allows an estimation of the precision and recall of the trained classifier. When both are optimal the F1 score approaches 1.
 
 \section{About the Implementation}
-The stance detector was implemented in Python. The data files were read using pandas. The test and training tweets were tokenized with the use of the library nltk tweet tokenizer. Furtheron stopwords were removed with the help of the nltk stopword list.
-Tokens of the length of 1 have been deleted due to resulting improvements of the F1 Score. \\
-The Nearest Centroid Classifier  of the sklearn package was chosen to classify the test and training vectors.
-for each class calculation of centroid by considering vector positions of all members.
-New vector is classified to the nearest centroid. Prediction possible
+The stance detector was implemented in Python. The data files were read using pandas. The test and training tweets were tokenized with the use of the library nltk tweet tokenizer. Furtheron stopwords were removed with the help of the nltk stopword list.\\
+The Nearest Centroid Classifier  of the sklearn package was chosen to classify the test and training vectors, which decides the classification by the nearest centroid for a vector.\\
+For training the classifier needs a vector matrix consisting of the bigramm vocabulary and the amount of these bigrams for each tweet.\\
+The test set needs to be translated into a matrix using the same vocabulary. It forms a similar matrix as the matrix of the training set. New bigrams which occured in the test but not in the training set were not considered. The new bigrams of the test set would have been known before training the classifier, what would leave it static.
+\pagebreak
 
 \section{Findings}
 
+\subsection{F1 score}
 In the following the results for the F1 score as the amount of true positive (TP), false positive (FP) and false negative (FN) predictions are shown. The topics "Atheism" and "Climate Change is a real Concern" have been chosen for further examination.\\
 \\
 \textbf{Atheism}\\
 \\
 \begin{tabular}{c|ccc|c}
 stance & TP & FP & FN & F1\\ \hline
-Favor & 2 & 0 & 30 & 0.11764705882352941\\
-Against & 154 & 0 & 6 & 0.9808917197452229 \\
-Neutral & 0 & 0 & 28 & 0.0 \\
+Favor & 2 & 0 & 30 & 0.1176\\
+Against & 147 & 0 & 13 & 0.9576 \\
+Neutral & 1 & 0 & 27 & 0.0689\\
 \end{tabular}\\
 \\
 \textbf{Climate Change is a real Concern} \\
 \\
 \begin{tabular}{c|ccc|c}
 stance & TP & FP & FN & F1\\ \hline
-Favor & 42 & 0 & 81 & 0.509090909090909\\
+Favor & 57 & 0 & 66 & 0.6333\\
 Against & 0 & 0 & 11 & 0.0\\
-Neutral & 35 & 0 & 0 & 1.0 \\
+Neutral & 32 & 0 & 3 & 0.9552 \\
 \end{tabular}\\
 \\
-One can observe that the F1 score of each topic is very high (1.0). For example the against score of the topic "Atheism" or the neutral score in the topic "Climate Change is a Real Concern". The other stance scores are lower or 0, which means a bad prediction rate for these stances.\\
-These results correlate with the structure of the training set. When examining the training set a low diversity is present.\\
+One can observe that the F1 score of each topic is very high for the "against" stance of the topic "Atheism" or the "neutral" stance in the topic "Climate Change is a Real Concern". The other stance scores are lower or 0, which means a bad prediction rate for these stances.\\
+These results correlate with the structure of the training set. When examining the training set a low diversity is present. The following table presents the amount of tweets per stance of the training set.\\
 
-\begin{tabular}{c|ccc}
+\begin{tabular}{r|ccc}
 & favor & against & neutral\\ \hline
-Climate Change is a Real Concern & 123 & 11 & 35 \\
-Atheism & 32 & 160 & 28 \\
+Atheism & 32 & \textbf{160} & 28 \\
+Climate Change & \textbf{123} & 11 & 35 \\
 \end{tabular} \\
 \\
 This low diversity leads to a low F1 score because the classifier has to be trained with sufficient examples to give sufficient predictions.\\
+\\
+\subsection{effects of stopword removal}
+Here the effects of the common stopword removal feature were examinded. In theory the removal should improve the F1 score by removing unsignificant tokens from the vocabulary.\\
+In the following table the F1 scores in the order (favor | against | neutral) are shown.\\
+\\
+\begin{tabular}{r|cccc}
+& F1 without stopword removal &  F1 with stopword removal\\ \hline
+Atheism & 0.2222 | 0.9542 | 0.1333 & 0.1176 | 0.9809 | 0\\
+Climate Change & 0.7881 | 0 | 0.7719 & 0.5091 | 0 | 1.0 \\
+\end{tabular}\\
+\\
+The F1 scores without the stopword removal are diverse, while the strong stance scores with stopword removal are even more specialised.\\
+An approach of explaining this phenomenon is that the vocabulary used for training and test set is to small.
+The stopword removal reduces the amount of possible bigrams for the vocabulary.
+In the testing process only bigrams which occur in the vocabulary are considered.
+Without the removal of stop words the vocabulary would be bigger and support more detailed analysis of smaller indicators like stopwords.
+\\
+\subsection{optimal test set}
 Furtheron the classifier was tested otherwise. When using the training set as training and test set the classifier has to classify the tweets he trained on. Hence the F1 score should be higher.
 Here the classifier was used on the topic "Atheism", which led to the following results. \\
 \\
@@ -84,29 +104,85 @@ Against & 117 & 0 & 0 & 1.0\\
 Neutral &  303 & 0 & 1 & 0.998353\\
 \end{tabular}\\
 \\
-As expected very high F1 score. Nonetheless 2 faults could be found for the following tweets:\\
-\em{FAVOR: god of the gaps is not evidence \# next \# SemST}\\
-\em{AGAINST: I hope no one is hurt. \# WhoIsBurningBlackChurches \# EndRacism \# LoveWins \# SemST}\\
-Even for a human these tweets might be difficult to classify. They indicate the problem with emotional background, irony and tonation of stance detector systems. 
+As expected the F1 score is for each stance almost 1. Nonetheless 2 faults could be found for the following tweets:\\
+\\
+god of the gaps is not evidence \#next \#SemST\\
+\\
+I hope no one is hurt. \#WhoIsBurningBlackChurches \#EndRacism \#LoveWins \#SemST\\
+\\
+Even for a human these tweets might be difficult to classify. Especially the second tweet indicates the problem with emotional background, irony and tonation which stance detector systems have. 
 
+\subsection{error analysis}
+
+The analysis of wrongly classified tweets might lead to new insights.
+Here five tweets of the topic Atheism are listed which are classified as "Favor" which should be classified as "Against". 
+
+\begin{enumerate}
+%('AGAINST', 'FAVOR', 13)
+\item These days, the cool kids are atheists.  \#freethinker \#SemST\\
+\\
+This sentence clearly contains the terms "cool kid" and "atheist" and clearly favors atheism. "\#freethinker" does support this assumptions. The classifier did not categorize this tweet. It is a mistake in the test data set.
+\\
+\item Next time you hear someone say that our Founding Fathers intended a "Christian Nation," show 'em those quotes. \#SemST\\
+\\
+This tweet contains the words "Founding Father" and "Christian Nation", which might have indicated the classifier that this tweet favors atheism. Problem is that the tweet makes a reference to some other unknown quotes, which might relativise the first part of the tweet. So it is in general hard to guess the stance of the tweet.
+\\
+\item RT \@br\_holden: Religions are perfectly happy to peddle an afterlife that doesn\'t actually exist.  \#freethinker \#SemST \\
+\\
+The terms "afterlife" and "does'nt exist" might have lead the classifier to the prediction as "Favor" and it is right. The non existing afterlife is part of the atheistic belief. The test set determined this tweet as "Against" atheism, which is wrong. 
+\\
+\item RT \@br\_holden: Superstition-based thoughts tend to be wasted thoughts.  \#freethinker \#SemST\\
+\\
+From the viewpoint of atheism the term "superstition-based" correlates with religious beliefs. In combination with the term "wasted" the classifier detected the stance as "Favor". The predefined stance of the test set is wrong. 
+\\
+\item RT \@br\_holden: Just say no to superstitious thought in general and religions in particular.  \#freethinker \#SemST\\
+\\
+The combination of the terms "say no to" and "superstitious" might be the cause of the attributes as "Favor" for atheism. In atheistic beliefs "superstitious" is very often correlated with religion and this tweet rejects it. The classification in the test set is wrong.  
+\\
+\end{enumerate}
+4 , maybe even 5, of these 5 tweets had been classified wrong in advance and are errors in the test set. These mistakes effect the calculated F1 score. It would be better than actually indicated.\\
+Here five tweets which are classified as "Against" but should be classified otherwise.
+\\
+\begin{enumerate}
+%('Favor', 'AGAINST') 
+\item Absolutely fucking sick \& tired of the religious and their "We're persecuted" bollocks! So fucking what? Pissoff! \#SemST\\
+\\
+The use of terms like "fuck", "sick" and "pissoff" indicate a strongly rejecting stance and might indicate a rejection of the topic "Atheism" as well. Maybe the classifier was not able to detect, that the opposite of "Atheism" was rejected. Here the classifier made a mistake. 
+\\
+\item Imagine a species that had split the atom and ventured into space yet most still believe a magic man created everything with magic \#SemST\\
+\\
+In this tweet the stance might be harder to detect, because the used terms like "magic", "atom", "space", "species" do not indicate anything specific and the stance is hidden. Here no clear rejection is detectable. Maybe the use of the term "magic" or "species" indicated the stance of "Against" atheism. 
+\\
+\item I don't believe in the hereafter.  I believe in the here and now. \#SemST\\
+\\
+The tweet is clearly in "Favor" of "Atheism". Twice the use of the term "believe" might have indicated the religious context. The correlation of "do not believe" and "hereafter" were not made by the classifier.
+\\
+\item @godless\_mom I like how Jesus is reduced to appearing on toast and photoshopped images and they still praise it. \#SemST \\
+\\
+Here the stance is more hidden and no clear rejection is indicated by the used words. The combination of "Jesus" and "reduced to" could have been an identifier, but was not detected by the classifier. Maybe the combination of "like" and "Jesus" had a stronger meaning for the classifier and it did not detect it's inversion.
+\\
+\item @FaithMattersUK we could all just not use religion and beliefs as an excuse to murder and hate? \#don'tmurder \#SemST\\
+\\
+The stance is favors atheism. The bigram combination of "not use" and "religion" might have indicated the classifier th wrong "Against" stance. It did not detect the correlation of "not" to the part "murder and hate" later in the tweet.
+\\
+\end{enumerate} 
+Here the classifier made errors in 5 of 5 stances. They might be caused by weak indication in the target tweets, the use of inversing words which changed the indications of the preceding terms and undetected correlations of negations.
+ 
 \section{Discussion}
-
-depends on treatment of unknown bigrams which are not in training vocabulary -> not counted .> more vectors near to origin (null vector) ->classification by nearest centroid: atheism: against, Climate change is a real concern: Neutral
-Bigger vocabulary solves this problem, no classification of unknown bigrams
-
-
-It is observable that in both 
-
-- use of better training data wih higher variability to teach classifier all possible aspects of a stance
-- only use of familiar bigrams limits performance
-- addition of bigrams to vocabulary heavy
-- size of matrix containing so many zeros
-
-
+During the research problems of the developed classifier were detected.
+The gravest problem is the lacking diversity of the training set which leads to a specialisation in the most often occuring stances. Better fitting training data with higher variety to train the classifier for the other stances as well are a solution.\\ 
+Furtheron the classifier can only work with familar bigrams it learned from the training set. Here would a bigger training set help equally. The higher the learned vocabulary the more bigrams can be used for classification. \\ 
+A third point to mention is the extensibility. The implemented programm is working with a huge matrix consisting of the bigrams of the training set vocabulary and the count of appearence in the corresponding tweets.\\ 
+The amount of bigrams can be extended, but would lead to the necessity of adding a new empty line containing zeros for each existing tweet in the matrix.\\
+The amount of tweets for training purposes could be extended, counting the amount of appearance for each bigram in a huge vocabulary leads as well to performance costs.\\ 
+An alternative which does not need so much empty entries could be a hash table, but needs a classifier library supporting this approach. \\
+The results of the classifier indicated even more problems.\\
+This stance detector uses only bigrams and has no logic to understand complex sentence so it can not handle negations properly. The use of trigramms or advanced tools for natural language processing might improve this problem.\\
+As a last point the flawed test set is to mention. It contains wrong stances, which lead to misscalculations of the evaluating F1 score. Of course a proper identification is prefered. Herefore a human beeing needs to check the identified stances. 
 
 \section{Conclusion}
-
-
+The stance detector for various stances has been successfully implemented. Due to lacking diversity in the traing set the resulting classifier is one sided and is only specialised in detecting one of 3 stances.\\
+In further examinations of the classifications mistakes in the test set were detected. These mistakes might as well occur in the training set. Furtheron were problems of the classifier discovered to handle more complex sentence structures. The used classifier is based on bigrams and advanced laguage processing tool would be necessary. And problems of detecting emotional tonations of the treated tweets were indicated.\\
 
 \bibliographystyle{alpha}
 \bibliography{task2.bib} 
