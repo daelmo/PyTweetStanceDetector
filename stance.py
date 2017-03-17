@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 
 
-topic = "Climate Change is a Real Concern"
+topic = "Atheism"
 pathTrainingSet = "train.txt"
 pathTestSet = "test.txt"
 stopwordList = set(stopwords.words('english'))
@@ -72,6 +72,20 @@ def calculateTestMatrix():
     # cut to topic
     df = df[df.Target == topic]
 
+    print df["Tweet"][71]
+    print df["Tweet"][79]
+    print df["Tweet"][83]
+    print df["Tweet"][101]
+    print df["Tweet"][106]
+
+
+    print df["Tweet"][13]
+    print df["Tweet"][14]
+    print df["Tweet"][50]
+    print df["Tweet"][51]
+    print df["Tweet"][52]
+
+
     # tokenisation of target tweets
     tweetsTokenList = []
 
@@ -101,7 +115,7 @@ def calculateTestMatrix():
 
 def tokenize(tweet):
     tweetTokens = tknzr.tokenize(tweet)
-    tweetTokens = [i.lower() for i in tweetTokens if i not in stopwordList and len(i) > 1]
+    tweetTokens = [i.lower() for i in tweetTokens if i not in stopwordList]
     return tweetTokens
 
 def calculateF1(calculatedStances, actualStances):
@@ -109,6 +123,14 @@ def calculateF1(calculatedStances, actualStances):
     actualStances = list(actualStances)
 
     stances = set(calculatedStances + actualStances)
+
+    # count amount of stances
+    (favor, against, neutral) = (0, 0, 0)
+    for stance in actualStances:
+        if(stance == "FAVOR"): favor += 1
+        if(stance == "AGAINST"): against +=1
+        if(stance == "NONE"): neutral += 1
+    print (favor, against, neutral)
 
 
     for possibleStance in stances:
@@ -120,7 +142,8 @@ def calculateF1(calculatedStances, actualStances):
                 else:
                     if (actualStance == possibleStance): fn += 1
                     if (calculatedStance == possibleStance): fp += 1
-                    #print i
+
+                    print (actualStance, calculatedStance,i)
             i += 1
         print (possibleStance, tp, fp, fn, 2*tp/(2*tp + fn +fp))
 
