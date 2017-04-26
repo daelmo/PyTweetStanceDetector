@@ -11,41 +11,55 @@
 \begin{document}
 \maketitle
 \section{Introduction}
-Stance detection means to determine the viewpoint on a certain topic, person, organisation or similar based on a natural-language based medium like text.\\ 
-To create such a stance detector a system needs to be trained with the help of a training set containing already predeterminded stances and the corresponding weighting. While considering the probability of word combinations in the training set predictions for the test set can be made.\\
+Stance detection means to determine the viewpoint on a certain topic, person, organisation or similar using a natural-language based media.\\ 
+\\
+To create such a stance detector a system needs to be trained with the help of a training set containing examples and already predetermined stances. While considering the probability of word combinations in the training set predictions for the test set can be made.\\
+\\
 In contrast to sentiment analysis the stance towards a topic is examined even when the target does not explicitely occur in the test medium. \\
 Stance detectors find for example use in the area of web data analysis to detect the stances of users to obtain an overview of the trends in the word wide web. \\
-The here implemented stance detector is working with tweets for the topics : Atheism, Legalization of Abortion, Climate Change is a real Concern, Feminist Movement, Hillary Clinton. Therefore the stances favor, against and neutral were applied.\\
+\\
+The here implemented stance detector is working with tweets for the topics : Atheism, Legalization of Abortion, Climate Change is a real Concern, Feminist Movement, Hillary Clinton. It was distiguished in the stances: favor, against and neutral.\\
 The used data set originates to the SemEval-2016 Shared Task on Stance Detection in Tweets
-(Mohammad et al. 2016)  found in \url{http://alt.qcri.org/semeval2016/task6/}.
+(Mohammad et al. 2016)  found in: \url{http://alt.qcri.org/semeval2016/task6/}.
 
 
 
 \section{Methodology}
-The training set has been tokenized with the tokenisation algorithm than stopwords were removed. \\
-This removal should delete tokens with low significance which occur often in sentence structures and do not carry any importance for the stance itself. It is a common procedure for stance detection.\\
+The training set has been tokenized than stopwords were removed. \\
+This removal should delete tokens with low significance which occur often in sentence structures and do not carry any importance for the stance itself. Other special preprocessing steps besides the methods of the nltk tweet tokenizer were not taken. \\
+\\
+The nltk tweet tokenizer splits the tweet string dependent on spaces. All letters are translated to lower capital letters. Multiple occuring terms stay in the token set. Dots, question and exclamation marks are treated as separate tokens by the tokenizer. \cite{tweetTokenize}\\
+\\
 The examined features for the classification are bigrams consisting of 2 consecutive tokens. So except for the first and the last token, each token is part of 2 bigrams.\\
+\\
 A vocabulary over all occuring tokens were constructed. In the following for each tweet a vector was created containing the amount of the associated bigrams.\\
-The classifier was trained using these vectors and the known stances. Herefore the Nearest Centroid classifier was chosen. It decides the affiliation of a vector in the context of multiple vector groups by creating vector centroids for each stance and classifying a new vector by determining the nearest centroid.\\
-This classifier was applied to the test data, which had been equaly tokenized as the training data. It is essential to mention that the vectorisation used the vocabulary of the training set. Bigramms not included in the training set vocabulary were not counted and have no effect on the classification. Using a bigger training set would reduce this shortage. \\
-The classified stances can be evaluated by comparing them with the known stances. For this evaluation the F1 score was used. For that reason the true positives (TP), false positives (FP) and false negatives (FN) were counted.
+\\
+The apllied classification method is called supervised: The classifier was trained using these vectors and the known labels. Herefore the Nearest Centroid classifier was chosen. It decides the affiliation of a vector in the context of multiple vector groups by creating vector centroids for each stance and classifying a new vector by determining the nearest centroid. \cite{nearestCentroid}\\
+Furtheron the Baseline Classifier was considered, which is simple for implementation. Here all new tweets are classified with the most often occuring stance in the training set. So this type of classifier would be formidable to detect one specific stance, but would never be able to detect the other two stances. \cite{baseline}\\
+\\
+The Nearest Centroid classifier was applied to the test data, which had been equaly tokenized as the training data. \\
+It is essential to mention that the vectorisation used the vocabulary of the training set. Bigramms not included in the training set vocabulary were not counted and have no effect on the classification. Using a bigger training set would reduce this shortage. \\
+\\
+The classified stances of the test set can be evaluated by comparing them with the known stances. For this evaluation the F1 score was used. For that reason the true positives (TP), false positives (FP) and false negatives (FN) were counted and than the following equation was applied.
 \begin{equation}
 F_1 = \frac{2*TP}{ 2*TP + FP + FN}
 \end{equation}
-The F1 score allows an estimation of the precision and recall of the trained classifier. When both are optimal the F1 score approaches 1.
+The F1 score allows an estimation of the precision and recall of the trained classifier. When both are optimal the F1 score approaches 1. The corresponding worst case would be 0.
 
 \section{About the Implementation}
-The stance detector was implemented in Python. The data files were read using pandas. The test and training tweets were tokenized with the use of the library nltk tweet tokenizer. Furtheron stopwords were removed with the help of the nltk stopword list.\\
+The stance detector was implemented in Python. The data files were read using the pandas library. The test and training tweets were tokenized with the use of the library nltk tweet tokenizer. Furtheron stopwords were removed with the help of the nltk stopword list.\\
+\\
 The Nearest Centroid Classifier  of the sklearn package was chosen to classify the test and training vectors, which decides the classification by the nearest centroid for a vector.\\
 For training the classifier needs a vector matrix consisting of the bigramm vocabulary and the amount of these bigrams for each tweet.\\
+\\
 The test set needs to be translated into a matrix using the same vocabulary. It forms a similar matrix as the matrix of the training set. New bigrams which occured in the test but not in the training set were not considered. The new bigrams of the test set would have been known before training the classifier, what would leave it static.
-\pagebreak
 
 \section{Findings}
 
 \subsection{F1 score}
 In the following the results for the F1 score as the amount of true positive (TP), false positive (FP) and false negative (FN) predictions are shown. The topics "Atheism" and "Climate Change is a real Concern" have been chosen for further examination.\\
 \\
+
 \textbf{Atheism}\\
 \\
 \begin{tabular}{c|ccc|c}
@@ -88,11 +102,12 @@ Climate Change & 0.7881 | 0 | 0.7719 & 0.5091 | 0 | 1.0 \\
 The F1 scores without the stopword removal are diverse, while the strong stance scores with stopword removal are even more specialised.\\
 An approach of explaining this phenomenon is that the vocabulary used for training and test set is to small.
 The stopword removal reduces the amount of possible bigrams for the vocabulary.
-In the testing process only bigrams which occur in the vocabulary are considered.
+In the testing process only bigrams which occur in the vocabulary are considered. 
+So without stopword removal might be more data available for the stance detection.\\
 Without the removal of stop words the vocabulary would be bigger and support more detailed analysis of smaller indicators like stopwords.
 \\
 \subsection{optimal test set}
-Furtheron the classifier was tested otherwise. When using the training set as training and test set the classifier has to classify the tweets he trained on. Hence the F1 score should be higher.
+Furtheron the classifier was tested otherwise. When using the training set simultaneously as training and test set the classifier has to classify the tweets he trained on. Hence the F1 score should be high.\\
 Here the classifier was used on the topic "Atheism", which led to the following results. \\
 \\
 \textbf{Atheism}
@@ -104,13 +119,14 @@ Against & 117 & 0 & 0 & 1.0\\
 Neutral &  303 & 0 & 1 & 0.998353\\
 \end{tabular}\\
 \\
-As expected the F1 score is for each stance almost 1. Nonetheless 2 faults could be found for the following tweets:\\
+As expected the F1 score is for each stance is almost 1. Nonetheless 2 faults could be found for the following tweets:\\
 \\
-god of the gaps is not evidence \#next \#SemST\\
+\begin{enumerate}
+\item god of the gaps is not evidence \#next \#SemST\\
+\item I hope no one is hurt. \#WhoIsBurningBlackChurches \#EndRacism \#LoveWins \#SemST\\
 \\
-I hope no one is hurt. \#WhoIsBurningBlackChurches \#EndRacism \#LoveWins \#SemST\\
-\\
-Even for a human these tweets might be difficult to classify. Especially the second tweet indicates the problem with emotional background, irony and tonation which stance detector systems have. 
+\end{enumerate}
+Even for a human these tweets might be difficult to classify. Especially the second tweet contains a sense of irony and cold indicate a problem with emotional background and tonation which text-based stance detector systems have. 
 
 \subsection{error analysis}
 
@@ -121,7 +137,7 @@ Here five tweets of the topic Atheism are listed which are classified as "Favor"
 %('AGAINST', 'FAVOR', 13)
 \item These days, the cool kids are atheists.  \#freethinker \#SemST\\
 \\
-This sentence clearly contains the terms "cool kid" and "atheist" and clearly favors atheism. "\#freethinker" does support this assumptions. The classifier did not categorize this tweet. It is a mistake in the test data set.
+This sentence clearly contains the terms "cool kid" and "atheist" and clearly favors atheism. "\#freethinker" does support this assumptions. The classifier did not categorize this tweet wrongly. It is probably a mistake in the test data set.
 \\
 \item Next time you hear someone say that our Founding Fathers intended a "Christian Nation," show 'em those quotes. \#SemST\\
 \\
@@ -147,11 +163,11 @@ Here five tweets which are classified as "Against" but should be classified othe
 %('Favor', 'AGAINST') 
 \item Absolutely fucking sick \& tired of the religious and their "We're persecuted" bollocks! So fucking what? Pissoff! \#SemST\\
 \\
-The use of terms like "fuck", "sick" and "pissoff" indicate a strongly rejecting stance and might indicate a rejection of the topic "Atheism" as well. Maybe the classifier was not able to detect, that the opposite of "Atheism" was rejected. Here the classifier made a mistake. 
+The use of terms like "fuck", "sick" and "pissoff" indicate a strongly rejecting stance and might indicate a rejection of the topic "Atheism" as well. Maybe the classifier was not able to detect, that the opposite of "Atheism" was rejected, but recognized the bad kind of language. Here the classifier made a mistake. 
 \\
 \item Imagine a species that had split the atom and ventured into space yet most still believe a magic man created everything with magic \#SemST\\
 \\
-In this tweet the stance might be harder to detect, because the used terms like "magic", "atom", "space", "species" do not indicate anything specific and the stance is hidden. Here no clear rejection is detectable. Maybe the use of the term "magic" or "species" indicated the stance of "Against" atheism. 
+In this tweet the stance might be harder to detect, because the used terms like "magic", "atom", "space", "species" do not indicate anything specific and the stance is hidden. Here no clear rejection or favorism is detectable. Maybe the use of the term "magic" or "species" indicated the stance of "Against" atheism. 
 \\
 \item I don't believe in the hereafter.  I believe in the here and now. \#SemST\\
 \\
@@ -170,19 +186,24 @@ Here the classifier made errors in 5 of 5 stances. They might be caused by weak 
  
 \section{Discussion}
 During the research problems of the developed classifier were detected.
-The gravest problem is the lacking diversity of the training set which leads to a specialisation in the most often occuring stances. Better fitting training data with higher variety to train the classifier for the other stances as well are a solution.\\ 
-Furtheron the classifier can only work with familar bigrams it learned from the training set. Here would a bigger training set help equally. The higher the learned vocabulary the more bigrams can be used for classification. \\ 
-A third point to mention is the extensibility. The implemented programm is working with a huge matrix consisting of the bigrams of the training set vocabulary and the count of appearence in the corresponding tweets.\\ 
-The amount of bigrams can be extended, but would lead to the necessity of adding a new empty line containing zeros for each existing tweet in the matrix.\\
-The amount of tweets for training purposes could be extended, counting the amount of appearance for each bigram in a huge vocabulary leads as well to performance costs.\\ 
-An alternative which does not need so much empty entries could be a hash table, but needs a classifier library supporting this approach. \\
-The results of the classifier indicated even more problems.\\
-This stance detector uses only bigrams and has no logic to understand complex sentence so it can not handle negations properly. The use of trigramms or advanced tools for natural language processing might improve this problem.\\
-As a last point the flawed test set is to mention. It contains wrong stances, which lead to misscalculations of the evaluating F1 score. Of course a proper identification is prefered. Herefore a human beeing needs to check the identified stances. 
+The gravest problem is the lacking diversity of the training set which leads to a specialisation in the most often occuring stances. Better fitting training data with higher variety to train the classifier for the other stances too, would be a valid solution.\\ 
+\\
+Furtheron the classifier can only work with familar bigrams it learned from the training set. Here would a bigger training set help equally. The bigger the learned vocabulary the more bigrams can be used for classification. \\ 
+\\
+A third point to mention is the huge size of the matrix consisting of the bigrams of the training set vocabulary and the count of appearence in the corresponding tweets.\\
+This matrix used in this implementation does contain many zeros, because not each bigramm is occuring in each tweet. So performance could be improved and storage space could be safed by a more efficient approach.\\
+An alternative could be a hash table, which only needs a classifier library supporting this approach. \\
+\\
+The results of the classifier indicated problems to understand tweets properly.\\
+This stance detector uses only bigrams and has no logic to understand complex sentences. For example it can not handle negations properly or emotional tonations like sarcasm. The use of trigramms or advanced tools for natural language processing might improve the understanding.\\
+\\
+As a last point the flawed test set is to mention. It contains wrong stances, which lead to misclassifications of the classifier and miscalculations of the F1 score. Of course a proper identification is prefered. \\
+Herefore a human beeing needs to check the identified stances. 
 
 \section{Conclusion}
-The stance detector for various stances has been successfully implemented. Due to lacking diversity in the traing set the resulting classifier is one sided and is only specialised in detecting one of 3 stances.\\
-In further examinations of the classifications mistakes in the test set were detected. These mistakes might as well occur in the training set. Furtheron were problems of the classifier discovered to handle more complex sentence structures. The used classifier is based on bigrams and advanced laguage processing tool would be necessary. And problems of detecting emotional tonations of the treated tweets were indicated.\\
+The stance detector has been successfully implemented. Due to lacking diversity in the traing set the resulting classifier is one sided. Most often it is specialised in detecting one of 3 stances.\\
+In further examinations of the classifications mistakes in the test set were detected. These mistakes might as well occur in the training set.\\
+Furtheron were problems of the classifier discovered to handle more complex sentence structures. The used classifier is based on bigrams. An extension using advanced language processing or trigramms might be possible for further improvements. \\
 
 \bibliographystyle{alpha}
 \bibliography{task2.bib} 

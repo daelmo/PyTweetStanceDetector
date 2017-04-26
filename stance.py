@@ -77,6 +77,7 @@ def calculateTestMatrix():
 
     for index, row in df.iterrows():
         tweetTokens = tokenize(row["Tweet"])
+
         tweetsTokenList.append(tweetTokens)
 
      # create vectorMatrix with bigram count
